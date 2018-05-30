@@ -1,0 +1,54 @@
+---
+title: "What Factors are Significant in determining Number of Video Games Sold"
+author: "Trevor Freeland"
+date: "May 30, 2018"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, message = F, warning = F, comment = NA)
+```
+
+##Introduction
+
+
+
+##Methods
+
+Our data was compiled by a user (Rush Kirubi added Metacritic data, VGChartz had Video Game Sales, idk if that is important) on the website Kaggle.com. This dataset contains data for over 16,500 videos games, including title, year of release, units sold in US/Europe/Asia/Worldwide, user and critic review scores, genre, publisher + developer, and ESRB rating (suggested age to play). The user and critic review scores were obtained through popular video game review website Metacritit.com. 
+
+Each individual observation in our data set is of a game being released on a certain platform. This means for games that were released on multiple platforms, there is a observation for each platform that the game was released on. For our analysis we only used observations that were complete, which meant we had 6,984 observations left in our dataset to use. 
+
+For a full overview of each individual variable in our data set, see description below:
+
+Name = Name of the game  
+Platform = Console on which the game is running  (31 different consoles)
+Year_of_Release = Year of the game released  (40 year span)
+Genre = Game's category (Ex: Sports, Racing, Puzzle...)  (13 levels)
+Publisher = Publisher of the Game  (582 unique publishers)
+NA_Sales = Game sales in North America (in millions of units)  
+EU_Sales = Game sales in the European Union (in millions of units)  
+JP_Sales = Game sales in Japan (in millions of units)
+Other_Sales = Game sales in the rest of the world, i.e. Africa, Asia exlcuding Japan, Australia, Europe exluding the E.U. and South America (in millions of units)  
+Global_Sales = Total sales in the world (in millions of units)
+Critic_Score = Aggregate score compiled by Metacritic staff (rating between 0-100)  
+Critic_Count = The number of critics scores used in formulating the overall Critic_Score  
+User_Score = Score by Metacritic's subscribers  (rating between 0.0-10.0)
+User_Count = Number of users who gave the User_Score  
+Developer = Party responsible for creating the game  (1697 unique Developers)
+Rating = The ESRB ratings (E.g. Teen, Adults Only, Everyone..) (9 levels)
+
+
+**Note** We should probably scale the Critic Score and User score to be on the same scale, so either scale up user or down critic, either way, but down probably makes more sense for random effects to be calculated. 
+
+##Results
+
+
+
+##Discussion
+
+
+
+##Appendix
+
+

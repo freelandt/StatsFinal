@@ -11,6 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 #Does the data read
-VideoGames <- read.csv("VideoGames.csv")
-VideoGames <- na.omit(VideoGames) #7017 full cases. 
+VideoGames <- read.csv("VideoGames.csv") #16719 cases
+VideoGames$Year_of_Release <- as.numeric(as.character(VideoGames$Year_of_Release))
+VideoGames$User_Score <- as.numeric(as.character(VideoGames$User_Score))
+VideoGames <- na.omit(VideoGames) #6894 full cases. 
 ```
