@@ -1,0 +1,16 @@
+---
+title: "WorkFile"
+author: "Trevor Freeland"
+date: "May 30, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#Does the data read
+VideoGames <- read.csv("VideoGames.csv")
+VideoGames <- na.omit(VideoGames) #7017 full cases. 
+```
