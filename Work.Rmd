@@ -16,6 +16,7 @@ library(lme4)
 library(tidyr)
 library(MASS)
 library(pscl)
+library(HLMdiag)
 
 model.counts <- source("http://math.carleton.edu/Chihara/Stats345/Count_Function.R")$value
 ```
@@ -61,6 +62,36 @@ hist(temp$n)
 
 ```{r}
 na.sales <- zeroinfl((NA_Sales*100)~Year_of_Release+Genre+Critic_Score+User_Score+Rating2+Platform, data = VideoGames2, dist = "negbin")
-test <- model.counts(na.sales)
+
+na.sales2 <- glmer((NA_Sales*100)~Year_of_Release + Genre + Critic_Score+User_Score+Rating2 + (1|Publisher2) + (1|Platform), data = VideoGames2, family = poisson)
+summary(na.sales2)
+```
+
+```{r}
+x <- HLMresid(na.sales2, level="marginal", standardize = TRUE)
+
+#standardized marginal: curvature? outliers?
+
+plot(x ~ fitted(na.sales2), data = VideoGames2)
+abline(h= 0)
+
+#residuals in order of observation number
+
+plot(x)
+abline(h = 0)
+
+#standardized conditional
+x2 <- HLMresid(na.sales2, level = 1, standardize = TRUE)
+
+#constant variance? outliers?
+plot(fitted(na.sales2), x2)
+abline(h= 0)
+
+#in order of observation number
+plot(x2)
+
+cd <- cooks.distance(na.sales2)
+plot(cd, type = "h") #using base R plot
+dotplot_diag(cd, cutoff="internal", name="cooks.distance")
 ```
 
