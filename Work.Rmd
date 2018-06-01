@@ -14,6 +14,10 @@ library(tidyverse)
 library(stargazer)
 library(lme4)
 library(tidyr)
+library(MASS)
+library(pscl)
+
+model.counts <- source("http://math.carleton.edu/Chihara/Stats345/Count_Function.R")$value
 ```
 
 ```{r}
@@ -56,10 +60,7 @@ hist(temp$n)
 ```
 
 ```{r}
-na.sales <- lmer(log(NA_Sales+.001)~Year_of_Release+Genre+Critic_Score+User_Score+Rating+(1|Publisher)+(1|Platform), data = VideoGames)
-na.sales2 <- lmer(log(NA_Sales+.001)~Year_of_Release+Genre+Critic_Score+User_Score+Rating+(1|Platform), data = VideoGames)
-
-D <- 2*as.numeric(logLik(na.sales)-logLik(na.sales2))
-.5*(1-pchisq(D,1))+.5*(1-pchisq(D,2))
+na.sales <- zeroinfl((NA_Sales*100)~Year_of_Release+Genre+Critic_Score+User_Score+Rating2+Platform, data = VideoGames2, dist = "negbin")
+test <- model.counts(na.sales)
 ```
 
