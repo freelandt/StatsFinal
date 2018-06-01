@@ -16,6 +16,7 @@ library(lme4)
 library(tidyr)
 library(MASS)
 library(pscl)
+library(HLMdiag)
 
 model.counts <- source("http://math.carleton.edu/Chihara/Stats345/Count_Function.R")$value
 ```
@@ -48,7 +49,7 @@ edaData <- VideoGames %>% gather(Region, Sales, c("NA_Sales", "EU_Sales", "JP_Sa
 
 edaData2 <- edaData %>% group_by(Region, Genre) %>% mutate(Percent = Sales/sum(Global_Sales))
 
-ggplot(edaData2, aes(x = Genre, y = Percent, fill = Region)) + geom_bar(stat = "identity")
+ggplot(filter(edaData2, Region %in% c("EU_Sales", "NA_Sales")), aes(x = Genre, y = Percent, fill = Region)) + geom_bar(stat = "identity", position = "dodge")
 
 ggplot(edaData, aes(x = Genre, y = Sales, fill = Region)) + geom_bar(stat = "identity")
 
@@ -73,6 +74,7 @@ hist(temp$n)
 ```
 
 ```{r}
+
 na.hurdle <- hurdle((NA_Sales*100)~Platform+Year2+Genre+User_Score+Critic_Score2+Rating2+Publisher2, data = VideoGames2)
 summary(na.hurdle)
 
@@ -88,11 +90,65 @@ na.hurdle4 <-  hurdle((NA_Sales*100)~Platform+Year2+Genre+User_Score+Critic_Scor
 AIC(na.hurdle3); AIC(na.hurdle4)
 #56941.65; 57015.14
 
+na.sales <- zeroinfl((NA_Sales*100)~Year_of_Release+Genre+Critic_Score+User_Score+Rating2+Platform, data = VideoGames2, dist = "negbin")
+
+VideoGames3 <- VideoGames2 %>% filter(NA_Sales > 0)
+VideoGames4 <- VideoGames2 %>% filter(EU_Sales > 0)
+VideoGames5 <- VideoGames2 %>% filter(JP_Sales > 0)
+
+na.sales2 <- glmer((NA_Sales*100)~Year2 + Genre + Critic_Score2+User_Score+Rating2 + (1|Publisher2) + (1|Platform), data = VideoGames3, family = poisson)
+
+
+eu.sales <- glmer((EU_Sales*100)~Year2 + Genre + Critic_Score2+User_Score+Rating2 + (1|Publisher2) + (1|Platform), data = VideoGames4, family = poisson)
+
+
+jp.sales <- glmer((JP_Sales*100)~Year2 + Genre + Critic_Score2+User_Score+Rating2 + (1|Publisher2) + (1|Platform), data = VideoGames5, family = poisson)
+
+#After deliberation we believe that it would be best/make most sense to use a hurdle model. 
+
+stargazer(na.sales2, eu.sales, jp.sales, type='text')
+```
+
+```{r}
+x <- HLMresid(na.sales2, level="marginal", standardize = TRUE)
+
+#standardized marginal: curvature? outliers?
+
+plot(x ~ fitted(na.sales2), data = VideoGames2)
+abline(h= 0)
+
+#residuals in order of observation number
+
+plot(x)
+abline(h = 0)
+
+#standardized conditional
+x2 <- HLMresid(na.sales2, level = 1, standardize = TRUE)
+
+#constant variance? outliers?
+plot(fitted(na.sales2), x2)
+abline(h= 0)
+
+#in order of observation number
+plot(x2)
+
+cd <- cooks.distance(na.sales2)
+plot(cd, type = "h") #using base R plot
+dotplot_diag(cd, cutoff="internal", name="cooks.distance")
+
+eu.sales <- lmer(log(EU_Sales+.001)~Year_of_Release+Genre+Critic_Score+User_Score+Rating2+(1|Platform)+(1|Publisher2), data = VideoGames2)
+summary(eu.sales)
+
+
 eu.hurdle <- hurdle((EU_Sales*100)~Platform+Year2+Genre+User_Score+Critic_Score2+Rating2+Publisher2, data = VideoGames2, dist = "negbin")
 summary(eu.hurdle)
+
 
 eu.hurdle2 <- hurdle((EU_Sales*100)~Platform+Year2+Genre+User_Score+Critic_Score2+Rating2+Publisher2 | Platform+Year2+Genre+Critic_Score2+Rating2, data = VideoGames2, dist = "negbin")
 AIC(eu.hurdle); AIC(eu.hurdle2)
 #48923.33; 49174.7
+
+ggplot(VideoGames2, aes(x = NA_Sales))+geom_histogram(binwidth = .4)
+
 ```
 
