@@ -2,7 +2,9 @@
 title: "What Factors are Significant in determining Number of Video Games Sold"
 author: "Trevor Freeland"
 date: "May 30, 2018"
-output: word_document
+output:
+  pdf_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -23,7 +25,7 @@ For a full overview of each individual variable in our data set, see description
 
 Name = Name of the game  
 Platform = Console on which the game is running  (31 different consoles)
-Year_of_Release = Year of the game released  (40 year span)
+Year_of_Release = Year of the game released. Values begin at 0 indicating a release in 1985  (40 year span)
 Genre = Game's category (Ex: Sports, Racing, Puzzle...)  (13 levels)
 Publisher = Publisher of the Game  (582 unique publishers)  
 NA_Sales = Game sales in North America (in millions of units)  
@@ -42,6 +44,8 @@ Rating = The ESRB ratings (E.g. Teen, Adults Only, Everyone..) (9 levels)
 **Note** We should probably scale the Critic Score and User score to be on the same scale, so either scale up user or down critic, either way, but down probably makes more sense for random effects to be calculated. 
 
 ##Results
+
+Summary statistics for sales figures in North America and Europe, as well as user score, critic score, and year of release are given in Table 1. Exploratory analysis was conducted to evaluate whether game platform and publisher should be fixed or random effects in our model. These plots are given in Figure 1. In Figure 1a, we can see that although some platforms have several outliers that achieved high sales, most platforms have similar sales distributions. This would suggest that a random effect may not be appropriate here. The case is similar in Figure 1b. Here we have similar distributions is sales for all publishers, suggesting a fixed effect may be sufficient in our models. It shouls be noted that all publishers will be included during the modeling process, but for clarity in this graph, only the data for 10 are provided.
 
 
 
