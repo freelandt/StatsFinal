@@ -50,7 +50,7 @@ edaData <- VideoGames %>% gather(Region, Sales, c("NA_Sales", "EU_Sales", "JP_Sa
 
 edaData2 <- edaData %>% group_by(Region, Genre) %>% mutate(Percent = Sales/sum(Global_Sales))
 
-ggplot(edaData2, aes(x = Genre, y = Percent, fill = Region)) + geom_bar(stat = "identity")
+ggplot(filter(edaData2, Region %in% c("EU_Sales", "NA_Sales")), aes(x = Genre, y = Percent, fill = Region)) + geom_bar(stat = "identity", position = "dodge")
 
 ggplot(edaData, aes(x = Genre, y = Sales, fill = Region)) + geom_bar(stat = "identity")
 ```
@@ -67,8 +67,21 @@ hist(temp$n)
 ```{r}
 na.sales <- zeroinfl((NA_Sales*100)~Year_of_Release+Genre+Critic_Score+User_Score+Rating2+Platform, data = VideoGames2, dist = "negbin")
 
-na.sales2 <- glmer((NA_Sales*100)~Year_of_Release + Genre + Critic_Score+User_Score+Rating2 + (1|Publisher2) + (1|Platform), data = VideoGames2, family = poisson)
-summary(na.sales2)
+VideoGames3 <- VideoGames2 %>% filter(NA_Sales > 0)
+VideoGames4 <- VideoGames2 %>% filter(EU_Sales > 0)
+VideoGames5 <- VideoGames2 %>% filter(JP_Sales > 0)
+
+na.sales2 <- glmer((NA_Sales*100)~Year2 + Genre + Critic_Score2+User_Score+Rating2 + (1|Publisher2) + (1|Platform), data = VideoGames3, family = poisson)
+
+
+eu.sales <- glmer((EU_Sales*100)~Year2 + Genre + Critic_Score2+User_Score+Rating2 + (1|Publisher2) + (1|Platform), data = VideoGames4, family = poisson)
+
+
+jp.sales <- glmer((JP_Sales*100)~Year2 + Genre + Critic_Score2+User_Score+Rating2 + (1|Publisher2) + (1|Platform), data = VideoGames5, family = poisson)
+
+#After deliberation we believe that it would be best/make most sense to use a hurdle model. 
+
+stargazer(na.sales2, eu.sales, jp.sales, type='text')
 ```
 
 ```{r}

@@ -11,35 +11,41 @@ knitr::opts_chunk$set(echo = F, message = F, warning = F, comment = NA)
 
 ##Introduction
 
-
+Data was assembled from over 16,000 video games that were sold between 1985 and 2016. Using the sales information and review scores of the video games we set out to examine what factors had different effects on European sales compared to North American sales. Exploratory studies in the past have looked at how different genres of video games sell better in different parts of the world. 
 
 ##Methods
 
-Our data was compiled by a user (Rush Kirubi added Metacritic data, VGChartz had Video Game Sales, idk if that is important) on the website Kaggle.com. This dataset contains data for over 16,500 videos games, including title, year of release, units sold in US/Europe/Asia/Worldwide, user and critic review scores, genre, publisher + developer, and ESRB rating (suggested age to play). The user and critic review scores were obtained through popular video game review website Metacritit.com. 
+Our data was compiled by two users on the website Kaggle.com. This dataset contains data for over 16,500 videos games, including title, year of release, units sold in US/Europe/Asia/Worldwide, user and critic review scores, genre, publisher, developer, and ESRB rating (suggested age to play). The user and critic review scores were obtained through popular video game review website Metacritit.com. 
 
-Each individual observation in our data set is of a game being released on a certain platform. This means for games that were released on multiple platforms, there is a observation for each platform that the game was released on. For our analysis we only used observations that were complete, which meant we had 6,984 observations left in our dataset to use. 
+Two of our factor variables, Publisher and Developer, had over 500 different levels so we need to condense the levels for our models to converge properly. Also the two factors were highly correlated and the Publisher variable was more salient so we only used the Publisher variable for our models. For the Publisher variable we decided to group together any publisher that didn't appear in more than 10 observations in our data set into an "Other" category. This meant we condensed our publishers from 582 unique instances down to 53 unique publishers and an other category. After condesing the different levels publishers down we no longer had convergence issues in our models of EU and NA sales. 
+
+All of our sales variables began as counts in millions of units. However, since our data contained decimal places we needed to transform the variablesin order to use the Poisson and Negative Binomial models. For our modeleling we multiplied our sales variables by 100 so that the number of units sold were in counts of 10,000s as whole numbers as opposed to decimals in the millions of units sold.
+
+Originally our critic ratings variable was on a scale from 0-100 and our user ratings variable was on a scale from 0.0-10.0. For our modeling we wanted the two rating variables to be on the same scale and so we divided the critic ratings by 10 in order to put the critic ratings on a scale from 0.0-10.0 as well. 
+
+Each individual observation in our data set is of a game being released on a certain platform. This means that for games that were released on multiple platforms, there is an observation for each platform that the game was released on. For our analysis we only used observations that were complete, which meant we had 6,894 observations left in our dataset to use. 
 
 For a full overview of each individual variable in our data set, see description below:
 
 Name = Name of the game  
-Platform = Console on which the game is running  (31 different consoles)
-Year_of_Release = Year of the game released  (40 year span)
-Genre = Game's category (Ex: Sports, Racing, Puzzle...)  (13 levels)
+Platform = Console on which the game is running  (31 different consoles)  
+Year2 = Year that the game was released (Year2 = 0 for the year 1985)   
+Genre = Game's category (Ex: Sports, Racing, Puzzle...)  (13 different levels)  
 Publisher = Publisher of the Game  (582 unique publishers)  
+Publisher2 = Publisher of the Game (53 Publishers and an Other category)  
 NA_Sales = Game sales in North America (in millions of units)  
 EU_Sales = Game sales in the European Union (in millions of units)  
-JP_Sales = Game sales in Japan (in millions of units)
+JP_Sales = Game sales in Japan (in millions of units)  
 Other_Sales = Game sales in the rest of the world, i.e. Africa, Asia exlcuding Japan, Australia, Europe exluding the E.U. and South America (in millions of units)  
-Global_Sales = Total sales in the world (in millions of units)
+Global_Sales = Total sales in the world (in millions of units)  
 Critic_Score = Aggregate score compiled by Metacritic staff (rating between 0-100)  
+Critic_Score2 = Critic_Score / 10 to be on the same scale as the User_Score (rating between 0.0-10.0)  
 Critic_Count = The number of critics scores used in formulating the overall Critic_Score  
-User_Score = Score by Metacritic's subscribers  (rating between 0.0-10.0)
+User_Score = Score by Metacritic's subscribers  (rating between 0.0-10.0)  
 User_Count = Number of users who gave the User_Score  
-Developer = Party responsible for creating the game  (1697 unique Developers)
-Rating = The ESRB ratings (E.g. Teen, Adults Only, Everyone..) (9 levels)
-
-
-**Note** We should probably scale the Critic Score and User score to be on the same scale, so either scale up user or down critic, either way, but down probably makes more sense for random effects to be calculated. 
+Developer = Party responsible for creating the game  (1697 unique Developers)  
+Rating = The ESRB ratings (E.g. Teen, Adults Only, Everyone..) (9 levels)  
+Rating2 = ESRB ratings combining barely used ratings into a "No Rating" level (5 levels)
 
 ##Results
 
