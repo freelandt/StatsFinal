@@ -29,7 +29,18 @@ VideoGames <- na.omit(VideoGames) #6894 full cases.
 ```{r}
 edaData <- VideoGames %>% gather(Region, Sales, c("NA_Sales", "EU_Sales", "JP_Sales", "Other_Sales"))
 
-edaData2 <- edaData %>% group_by(Genre) %>% mutate(Percent = Sales/sum(Global_Sales))
+edaData2 <- edaData %>% group_by(Region, Genre) %>% mutate(Percent = Sales/sum(Global_Sales))
+
+ggplot(edaData2, aes(x = Genre, y = Percent, fill = Region)) + geom_bar(stat = "identity")
 
 ggplot(edaData, aes(x = Genre, y = Sales, fill = Region)) + geom_bar(stat = "identity")
+```
+
+```{r}
+temp <- VideoGames %>% filter(NA_Sales >0, EU_Sales >0, JP_Sales > 0)
+
+temp <- VideoGames %>% group_by(Developer) %>% summarise(n = n())
+
+temp2 <- temp %>% filter(n > 10)
+hist(temp$n)
 ```
