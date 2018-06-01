@@ -22,6 +22,16 @@ VideoGames <- read.csv("VideoGames.csv") #16719 cases
 VideoGames$Year_of_Release <- as.numeric(as.character(VideoGames$Year_of_Release))
 VideoGames$User_Score <- as.numeric(as.character(VideoGames$User_Score))
 VideoGames <- na.omit(VideoGames) #6894 full cases. 
+VideoGames$Rating2 <- as.factor(ifelse(VideoGames$Rating %in% c("E", "E10+", "M", "T"), as.character(VideoGames$Rating), "No Rating"))
+
+#Create "Other" category for publishers/developers that worked on 10 games or less
+Publishers <- VideoGames %>% group_by(Publisher) %>% summarize(n = n())
+Publishers$Publisher2 <- as.factor(ifelse(Publishers$n > 10, as.character(Publishers$Publisher), "Other"))
+VideoGames2 <- merge(VideoGames, Publishers[,c(1,3)], by.x = "Publisher", by.y = "Publisher")
+
+Developers <- VideoGames %>% group_by(Developer) %>% summarize(n = n())
+Developers$Developer2 <- as.factor(ifelse(Developers$n > 10, as.character(Developers$Developer), "Other"))
+VideoGames2 <- merge(VideoGames2, Developers[,c(1,3)], by.x = "Developer", by.y = "Developer")
 ```
 
 ##Some EDA
@@ -33,3 +43,12 @@ edaData2 <- edaData %>% group_by(Genre) %>% mutate(Percent = Sales/sum(Global_Sa
 
 ggplot(edaData, aes(x = Genre, y = Sales, fill = Region)) + geom_bar(stat = "identity")
 ```
+
+```{r}
+na.sales <- lmer(log(NA_Sales+.001)~Year_of_Release+Genre+Critic_Score+User_Score+Rating+(1|Publisher)+(1|Platform), data = VideoGames)
+na.sales2 <- lmer(log(NA_Sales+.001)~Year_of_Release+Genre+Critic_Score+User_Score+Rating+(1|Platform), data = VideoGames)
+
+D <- 2*as.numeric(logLik(na.sales)-logLik(na.sales2))
+.5*(1-pchisq(D,1))+.5*(1-pchisq(D,2))
+```
+
