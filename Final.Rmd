@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = F, message = F, warning = F, comment = NA)
 
 ##Introduction
 
-Data was assembled from over 16,000 video games that were sold between 1985 and 2016. Using the sales information and review scores of the video games we set out to examine what factors had different effects on European sales compared to North American sales. Exploratory studies in the past have looked at how different genres of video games sell better in different parts of the world. 
+What makes a video game more popular abroad then then in North America? What effect do critic reviews have on sales? Is this effect different in North America compared to in the European Union? Using sales and review data from over 16,000 video games that were sold between 1985 and 2016, we set out to examine what factors effected the number of units sold in North America and in the European Union. We wanted to see if there are substantial diferences in the factors that effect sales between North America and the EU. In the past exploratory studies have examined how the different genres of video games sell better in different markets across the globe. We will examine the differences in effects between different genres and explore the possible different effects that different publishers have on sales.
 
 ##Methods
 
