@@ -24,12 +24,19 @@ library(gridExtra)
 model.counts <- source("http://math.carleton.edu/Chihara/Stats345/Count_Function.R")$value
 ```
 
+##Data Cleanup
+
 ```{r}
-#Does the data read
 VideoGames <- read.csv("VideoGames.csv") #16719 cases
+
+#Converting year of release and user score to numerics from factors.
 VideoGames$Year_of_Release <- as.numeric(as.character(VideoGames$Year_of_Release))
 VideoGames$User_Score <- as.numeric(as.character(VideoGames$User_Score))
+
+#Only using complete cases
 VideoGames <- na.omit(VideoGames) #6894 full cases. 
+
+#Some ratings only had 1 or 0 games in our narrowed down data, so converting them to no rating level.
 VideoGames$Rating2 <- as.factor(ifelse(VideoGames$Rating %in% c("E", "E10+", "M", "T"), as.character(VideoGames$Rating), "No Rating"))
 
 #Create "Other" category for publishers/developers that worked on 10 games or less
@@ -41,6 +48,7 @@ Developers <- VideoGames %>% group_by(Developer) %>% summarize(n = n())
 Developers$Developer2 <- as.factor(ifelse(Developers$n > 10, as.character(Developers$Developer), "Other"))
 VideoGames2 <- merge(VideoGames2, Developers[,c(1,3)], by.x = "Developer", by.y = "Developer")
 
+#Scaling Critic score to be on the same scale as user score and scaling time to start at 0 in 1985. 
 VideoGames2$Critic_Score2 <- VideoGames2$Critic_Score/10
 VideoGames2$Year2 <- VideoGames2$Year_of_Release - 1985
 ```
@@ -48,18 +56,16 @@ VideoGames2$Year2 <- VideoGames2$Year_of_Release - 1985
 ##Some EDA
 
 ```{r}
+#Examing units sold for different Genres
 edaData <- VideoGames %>% gather(Region, Sales, c("NA_Sales", "EU_Sales", "JP_Sales", "Other_Sales"))
-
-edaData2 <- edaData %>% group_by(Region, Genre) %>% mutate(Percent = Sales/sum(Global_Sales))
-
-ggplot(filter(edaData2, Region %in% c("EU_Sales", "NA_Sales")), aes(x = Genre, y = Percent, fill = Region)) + geom_bar(stat = "identity", position = "dodge")
-
 ggplot(edaData, aes(x = Genre, y = Sales, fill = Region)) + geom_bar(stat = "identity")
 
+#Checking to see if we should treat platform as a random effect or fixed effect. 
 p1 <- ggplot(VideoGames2, aes(x = Platform, y = NA_Sales)) + geom_boxplot() + 
   ggtitle("Figure 1a: North America Sales by Platform") + 
   labs(x = "Video Game Platform", y = "NA Sales")
 
+#Checking to see if we should treat publisher as a random or fixed effect. 
 VideoGamesPub <- subset(VideoGames2, subset = Publisher2 %in% c("Activision", "Bethesda Softworks", "Electronic Arts", "Konami Digital Entertainment", "Microsoft Game Studios", "Nintendo", "Sega", "Sony Computer Entertainment", "Square Enix", "Ubisoft"))
 p2 <- ggplot(VideoGamesPub, aes(x = Publisher2, y = NA_Sales)) + geom_boxplot() + 
   #theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
@@ -68,15 +74,6 @@ p2 <- ggplot(VideoGamesPub, aes(x = Publisher2, y = NA_Sales)) + geom_boxplot() 
   labs(x = "Video Game Publisher", y = "NA Sales")
 
 grid.arrange(p1, p2, nrow = 1)
-```
-
-```{r}
-temp <- VideoGames %>% filter(NA_Sales >0, EU_Sales >0, JP_Sales > 0)
-
-temp <- VideoGames %>% group_by(Developer) %>% summarise(n = n())
-
-temp2 <- temp %>% filter(n > 10)
-hist(temp$n)
 ```
 
 ```{r}
@@ -114,23 +111,23 @@ legend("topright", legend = c("NA Observed", "NA Predicted", "EU Observed", "EU 
 ```
 
 ```{r, eval = FALSE}
+#Below here we tried fitting a zeroinflation model and different random effects models. 
+#We ran into troubles being able to run the zeroinflated model with such large factor variables
+#We also saw that our hurdle model did very well on prediction counts. 
+
 na.sales <- zeroinfl((NA_Sales*100)~Year_of_Release+Genre+Critic_Score+User_Score+Rating2+Platform, data = VideoGames2, dist = "negbin")
 
 VideoGames3 <- VideoGames2 %>% filter(NA_Sales > 0)
 VideoGames4 <- VideoGames2 %>% filter(EU_Sales > 0)
-VideoGames5 <- VideoGames2 %>% filter(JP_Sales > 0)
 
 na.sales2 <- glmer((NA_Sales*100)~Year2 + Genre + Critic_Score2+User_Score+Rating2 + (1|Publisher2) + (1|Platform), data = VideoGames3, family = poisson)
 
 
 eu.sales <- glmer((EU_Sales*100)~Year2 + Genre + Critic_Score2+User_Score+Rating2 + (1|Publisher2) + (1|Platform), data = VideoGames4, family = poisson)
 
-
-jp.sales <- glmer((JP_Sales*100)~Year2 + Genre + Critic_Score2+User_Score+Rating2 + (1|Publisher2) + (1|Platform), data = VideoGames5, family = poisson)
-
 #After deliberation we believe that it would be best/make most sense to use a hurdle model. 
 
-stargazer(na.sales2, eu.sales, jp.sales, type='text')
+stargazer(na.sales2, eu.sales, type='text')
 ```
 
 ```{r, eval = FALSE}
@@ -159,9 +156,6 @@ plot(x2)
 cd <- cooks.distance(na.sales2)
 plot(cd, type = "h") #using base R plot
 dotplot_diag(cd, cutoff="internal", name="cooks.distance")
-
-eu.sales <- lmer(log(EU_Sales+.001)~Year_of_Release+Genre+Critic_Score+User_Score+Rating2+(1|Platform)+(1|Publisher2), data = VideoGames2)
-summary(eu.sales)
 ```
 
 
