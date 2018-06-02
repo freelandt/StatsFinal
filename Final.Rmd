@@ -3,8 +3,8 @@ title: "What Factors are Significant in determining Number of Video Games Sold"
 author: "Trevor Freeland"
 date: "May 30, 2018"
 output:
-  pdf_document: default
   word_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -53,6 +53,17 @@ Rating2 = ESRB ratings combining barely used ratings into a "No Rating" level (5
 
 Summary statistics for sales figures in North America and Europe, as well as user score, critic score, and year of release are given in Table 1. Exploratory analysis was conducted to evaluate whether game platform and publisher should be fixed or random effects in our model. These plots are given in Figure 1. In Figure 1a, we can see that although some platforms have several outliers that achieved high sales, most platforms have similar sales distributions. This would suggest that a random effect may not be appropriate here. The case is similar in Figure 1b. Here we have similar distributions is sales for all publishers, suggesting a fixed effect may be sufficient in our models. It shouls be noted that all publishers will be included during the modeling process, but for clarity in this graph, only the data for 10 are provided.
 
+Zero Component:
+
+$$\log(\hat{\mu}_{\textrm{NA}}) = \beta_{A0} + \overrightarrow{\beta}_{A1}\textrm{Platform} + \overrightarrow{\beta}_{A2}\textrm{Rating} + \overrightarrow{\beta}_{A3}\textrm{Genre} + \overrightarrow{\beta}_{A4}\textrm{Publisher}+
+\beta_{A5}\textrm{Year}+\beta_{A6}\textrm{UserRating}+
+\beta_{A7}\textrm{CriticRating}$$
+
+Count Component:
+
+$$\log(\frac{\hat{\pi}_{\textrm{NA}}}{1-\hat{\pi}_{\textrm{NA}}}) =\beta_{B0} + \overrightarrow{\beta}_{B1}\textrm{Platform} + \overrightarrow{\beta}_{B2}\textrm{Rating} + \overrightarrow{\beta}_{B3}\textrm{Genre} + \overrightarrow{\beta}_{B4}\textrm{Publisher}+
+\beta_{B5}\textrm{Year}+\beta_{B6}\textrm{UserRating}+
+\beta_{B7}\textrm{CriticRating}$$
 
 
 ##Discussion
