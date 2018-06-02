@@ -101,6 +101,16 @@ summary(eu.hurdle)
 eu.hurdle2 <- hurdle((EU_Sales*100)~Platform+Year2+Genre+User_Score+Critic_Score2+Rating2+Publisher2 | Platform+Year2+Genre+Critic_Score2+Rating2, data = VideoGames2, dist = "negbin")
 AIC(eu.hurdle); AIC(eu.hurdle2)
 #48923.33; 49174.7
+
+na.count <- model.counts(na.hurdle3)
+eu.count <- model.counts(eu.hurdle)
+
+plot(0:1000, 0:1000, type = "n", xlim = c(0,15), ylim = c(0,1000), xlab = "Count", ylab = "Density")
+points(na.count[,1], na.count[,2], col = "dodgerblue")
+lines(na.count[,1], na.count[,3], col = "dodgerblue")
+points(eu.count[,1], eu.count[,2], col = "navyblue")
+lines(eu.count[,1], eu.count[,3], col = "navyblue")
+legend("topright", legend = c("NA Observed", "NA Predicted", "EU Observed", "EU Predicted"), lty = c(NA,1,NA,1), pch = c(1,NA,1,NA), lwd = c(NA,2,NA,2), col = c("dodgerblue", "dodgerblue", "navyblue", "navyblue"))
 ```
 
 ```{r, eval = FALSE}
