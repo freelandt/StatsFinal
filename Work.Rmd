@@ -77,28 +77,37 @@ grid.arrange(p1, p2, nrow = 1)
 ```
 
 ```{r}
+#Poisson hurdle
 na.hurdle <- hurdle((NA_Sales*100)~Platform+Year2+Genre+User_Score+Critic_Score2+Rating2+Publisher2, data = VideoGames2)
 summary(na.hurdle)
 
+#Removing variables in zero component
 na.hurdle2 <- hurdle((NA_Sales*100)~Platform+Genre+User_Score+Critic_Score2+Rating2+Publisher2|Platform+Year2+Genre+User_Score+Critic_Score2+Rating2, data = VideoGames2)
 AIC(na.hurdle); AIC(na.hurdle2)
 #274714.1; 274787.6
+#na.hurdle is favored
 
+#Negbin hurdles
 na.hurdle3 <- hurdle((NA_Sales*100)~Platform+Year2+Genre+User_Score+Critic_Score2+Rating2+Publisher2, data = VideoGames2, dist = "negbin")
 AIC(na.hurdle); AIC(na.hurdle3)
 summary(na.hurdle3)
 
+#Removing variables in zero component
 na.hurdle4 <-  hurdle((NA_Sales*100)~Platform+Year2+Genre+User_Score+Critic_Score2+Rating2+Publisher2 | Platform+Year2+Genre+User_Score+Critic_Score2+Rating2, data = VideoGames2, dist = "negbin")
 AIC(na.hurdle3); AIC(na.hurdle4)
 #56941.65; 57015.14
+#na.hurdle3 is favored overall
 
+#negbin hurdles for EU sales
 eu.hurdle <- hurdle((EU_Sales*100)~Platform+Year2+Genre+User_Score+Critic_Score2+Rating2+Publisher2, data = VideoGames2, dist = "negbin")
 summary(eu.hurdle)
 
 eu.hurdle2 <- hurdle((EU_Sales*100)~Platform+Year2+Genre+User_Score+Critic_Score2+Rating2+Publisher2 | Platform+Year2+Genre+Critic_Score2+Rating2, data = VideoGames2, dist = "negbin")
 AIC(eu.hurdle); AIC(eu.hurdle2)
 #48923.33; 49174.7
+#eu.hurdle is favored 
 
+#Checking observed and predicted counts
 na.count <- model.counts(na.hurdle3)
 eu.count <- model.counts(eu.hurdle)
 
@@ -113,7 +122,7 @@ legend("topright", legend = c("NA Observed", "NA Predicted", "EU Observed", "EU 
 ```{r, eval = FALSE}
 #Below here we tried fitting a zeroinflation model and different random effects models. 
 #We ran into troubles being able to run the zeroinflated model with such large factor variables
-#We also saw that our hurdle model did very well on prediction counts. 
+
 
 na.sales <- zeroinfl((NA_Sales*100)~Year_of_Release+Genre+Critic_Score+User_Score+Rating2+Platform, data = VideoGames2, dist = "negbin")
 
